@@ -17,7 +17,6 @@ const socketRunner = (io, openai) => {
         if (!bot) {
           return socket.emit("error", "Bot not found");
         }
-        console.log(bot);
 
         socket.join(botId);
 
@@ -44,6 +43,9 @@ const socketRunner = (io, openai) => {
           chatHistory.push({ role: "assistant", content: botMessage });
 
           socket.on("userMessage", async (message) => {
+            const start = new Date().getTime();
+
+            console.log(bot);
             chatHistory.push({ role: "assistant", content: message });
 
             try {
@@ -55,22 +57,24 @@ const socketRunner = (io, openai) => {
               });
 
               let botMessage = "";
+              console.log(response);
               for await (const chunk of response) {
                 if (chunk?.choices?.[0]?.delta?.content) {
                   botMessage += chunk.choices[0].delta.content;
                 }
               }
-              console.log(new Date().getSeconds());
+              console.log(new Date().getSeconds(), "res");
               const audio = await TTS.synthesizeSpeech(
                 botMessage,
-                bot.ttsProvide,
+                bot.ttsProvider,
                 {
                   voice: bot.ttsVoice,
                   provider: bot.ttsProvider,
                 }
               );
-              console.log(new Date().getSeconds());
-              socket.emit("botMessage", { botMessage, audio: audio || "" });
+
+              console.log(new Date().getTime() - start);
+              socket.emit("botMessage", { botMessage, audio });
               chatHistory.push({ role: "assistant", content: botMessage });
             } catch (error) {
               socket.emit(
