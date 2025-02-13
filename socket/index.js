@@ -61,14 +61,14 @@ const socketRunner = (io, openai) => {
                 }
               }
               console.log(new Date().getSeconds());
-              // const audio = await TTS.synthesizeSpeech(
-              //   botMessage,
-              //   bot.ttsProvide,
-              //   {
-              //     voice: bot.ttsVoice,
-              //     provider: bot.ttsProvider,
-              //   }
-              // );
+              const audio = await TTS.synthesizeSpeech(
+                botMessage,
+                bot.ttsProvide,
+                {
+                  voice: bot.ttsVoice,
+                  provider: bot.ttsProvider,
+                }
+              );
               console.log(new Date().getSeconds());
               socket.emit("botMessage", { botMessage, audio: audio || "" });
               chatHistory.push({ role: "assistant", content: botMessage });
