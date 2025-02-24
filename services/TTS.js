@@ -1,6 +1,15 @@
 const axios = require("axios");
 const OpenAI = require("openai");
+const AWS = require("aws-sdk");
 
+AWS.config.update({
+  region: "us-east-1",
+  accessKeyId: process.env.AWS_KEY,
+  secretAccessKey: process.env.AWS_SECRET,
+});
+const Polly = new AWS.Polly({
+  signatureVersion: "v4",
+});
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -21,7 +30,7 @@ async function getElevenLabsVoices() {
     });
     return response.data.voices;
   } catch (error) {
-    console.error("Failed to fetch ElevenLabs voices:", error.message);
+    console.error("Failed to fetch ElevenLabs voices:", error);
     return [];
   }
 }
@@ -32,9 +41,10 @@ async function synthesizeSpeech(
   options = {}
 ) {
   try {
-    console.log(provider);
     if (provider.toLowerCase() === "elevenlabs") {
       return elevenLabsSpeech(text, options);
+    } else if (provider.toLowerCase() === "polly") {
+      return pollySpeech(text, options);
     }
     return openAISpeech(text, options);
   } catch (error) {
@@ -58,6 +68,21 @@ async function openAISpeech(text, options = {}) {
     return buffer.toString("base64");
   } catch (error) {
     console.error("OpenAI TTS error:", error);
+    throw error;
+  }
+}
+
+async function pollySpeech(text, options = {}) {
+  try {
+    const response = await Polly.synthesizeSpeech({
+      OutputFormat: "mp3",
+      Text: text || "Hello, this is a test.",
+      VoiceId: options.voice || "Joanna",
+    }).promise();
+    const buffer = Buffer.from(response.AudioStream);
+    return buffer.toString("base64");
+  } catch (error) {
+    console.error("Polly TTS error:", error);
     throw error;
   }
 }

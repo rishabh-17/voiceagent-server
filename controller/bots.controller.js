@@ -1,3 +1,4 @@
+const { Polly } = require("aws-sdk");
 const Bots = require("../models/Bots.model");
 
 const createBot = async (req, res) => {
@@ -98,11 +99,22 @@ const getTTSConfig = async (req, res) => {
         voices: [
           { id: "JBFqnCBsd6RMkjVDRZzb", name: "Rachel" },
           { id: "21m00Tcm4TlvDq8ikWAM", name: "Adam" },
+          { id: "MF4J4IDTRo0AxOO4dpFR", name: "Devi (hindi)" },
+          { id: "1qEiC6qsybMkmnNdVMbK", name: "Monica Sogam (hindi)" },
         ],
         settings: {
-          stability: { type: "range", min: 0, max: 1, default: 0.5 },
+          stability: { type: "range", min: 0, max: 1, default: 0 },
           similarity_boost: { type: "range", min: 0, max: 1, default: 0.5 },
         },
+      },
+      Polly: {
+        voices: [
+          { id: "Aditi", name: "Aditi (hindi)" },
+          { id: "Kajal", name: "Kajal (hindi)" },
+          { id: "Gregory", name: "Gregory" },
+          { id: "Danielle", name: "Danielle" },
+        ],
+        settings: {},
       },
     };
 

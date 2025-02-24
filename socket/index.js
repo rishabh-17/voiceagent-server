@@ -4,14 +4,11 @@ const TTS = require("../services/TTS");
 
 const socketRunner = (io, openai) => {
   io.on("connection", (socket) => {
-    // console.log(`User connected: ${socket.id}`);
-
     let chatHistory = [
       { role: "system", content: "You are now connected to the bot." },
     ];
 
     socket.on("join", async (botId) => {
-      // console.log(`User joined bot ${botId}`);
       try {
         const bot = await Bots.findOne({ _id: botId });
         if (!bot) {
@@ -22,7 +19,7 @@ const socketRunner = (io, openai) => {
 
         chatHistory.push({
           role: "system",
-          content: `behave like an assistant, don't answer anything in long paragram just make as short as possible until user asks for more detail, try to be very good agent in every answer promote things based on your personality, detail of you personality is here:- ${bot?.personality} `,
+          content: `Act as a concise and efficient assistant. Keep responses short and to the point unless the user requests more details. If the user speaks in Hindi, reply in Hindi only as well as response text also should be in hindi language only if user ask question in hindi, using common English terms where necessary. Maintain a proactive approach by promoting relevant ideas based on your personality. just reply sorry if question is not fitting in your personality. Your personality details are: ${bot?.personality}.`,
         });
 
         try {
@@ -39,13 +36,11 @@ const socketRunner = (io, openai) => {
               botMessage += chunk.choices[0].delta.content;
             }
           }
-          // socket.emit("botMessage", botMessage);
           chatHistory.push({ role: "assistant", content: botMessage });
 
           socket.on("userMessage", async (message) => {
             const start = new Date().getTime();
 
-            console.log(bot);
             chatHistory.push({ role: "assistant", content: message });
 
             try {
@@ -57,24 +52,38 @@ const socketRunner = (io, openai) => {
               });
 
               let botMessage = "";
-              console.log(response);
+              let temp = "";
+              const sentenceEndings = /[.!?,:;]/;
               for await (const chunk of response) {
                 if (chunk?.choices?.[0]?.delta?.content) {
                   botMessage += chunk.choices[0].delta.content;
+                  temp += chunk.choices[0].delta.content;
+                  if (sentenceEndings.test(temp)) {
+                    const audio = await TTS.synthesizeSpeech(
+                      temp,
+                      bot.ttsProvider,
+                      {
+                        voice: bot.ttsVoice,
+                        provider: bot.ttsProvider,
+                      }
+                    );
+
+                    socket.emit("botMessage", {
+                      botMessage: temp,
+                      audio,
+                      question: message,
+                    });
+                    temp = "";
+                  }
                 }
               }
-              console.log(new Date().getSeconds(), "res");
-              const audio = await TTS.synthesizeSpeech(
-                botMessage,
-                bot.ttsProvider,
-                {
-                  voice: bot.ttsVoice,
-                  provider: bot.ttsProvider,
-                }
-              );
+              // const audio = await TTS.synthesizeSpeech(botMessage, "polly", {
+              //   voice: bot.ttsVoice,
+              //   provider: bot.ttsProvider,
+              // });
 
-              console.log(new Date().getTime() - start);
-              socket.emit("botMessage", { botMessage, audio });
+              // socket.emit("botMessage", { botMessage: temp, audio });
+
               chatHistory.push({ role: "assistant", content: botMessage });
             } catch (error) {
               socket.emit(
