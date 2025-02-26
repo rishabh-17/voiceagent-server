@@ -110,7 +110,7 @@ const getTTSConfig = async (req, res) => {
       Polly: {
         voices: [
           { id: "Aditi", name: "Aditi (hindi)" },
-          { id: "Kajal", name: "Kajal (hindi)" },
+          // { id: "Kajal", name: "Kajal (hindi)" },
           { id: "Gregory", name: "Gregory" },
           { id: "Danielle", name: "Danielle" },
         ],

@@ -14,12 +14,13 @@ const socketRunner = (io, openai) => {
         if (!bot) {
           return socket.emit("error", "Bot not found");
         }
+        console.log(bot);
 
         socket.join(botId);
 
         chatHistory.push({
           role: "system",
-          content: `Act as a concise and efficient assistant. Keep responses short and to the point unless the user requests more details. If the user speaks in Hindi, reply in Hindi only as well as response text also should be in hindi language only if user ask question in hindi, using common English terms where necessary. Maintain a proactive approach by promoting relevant ideas based on your personality. just reply sorry if question is not fitting in your personality. Your personality details are: ${bot?.personality}.`,
+          content: `Act as a concise and efficient assistant.you are a voice bot not chat bot so talk as humanly as possible. Keep responses short and to the point unless the user requests more details. If the user’s input contains Hindi or Hinglish, reply entirely in हिन्दी using common English terms where necessary example if i ask kese ho then reply should  be like मैं ठीक हूं आपका धन्यवाद. Otherwise, respond in English. Maintain a proactive approach by promoting relevant ideas based on your personality. Your personality details are: ${bot?.personality}.`,
         });
 
         try {
@@ -67,7 +68,6 @@ const socketRunner = (io, openai) => {
                         provider: bot.ttsProvider,
                       }
                     );
-
                     socket.emit("botMessage", {
                       botMessage: temp,
                       audio,
