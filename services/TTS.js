@@ -1,6 +1,7 @@
 const axios = require("axios");
 const OpenAI = require("openai");
 const AWS = require("aws-sdk");
+const { createClient } = require("@deepgram/sdk");
 
 AWS.config.update({
   region: "us-east-1",
@@ -15,6 +16,7 @@ const openai = new OpenAI({
 });
 const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
 const defaultProvider = process.env.DEFAULT_TTS_PROVIDER || "openai";
+const deepgram = createClient(process.env.DEEPGRAM_KEY);
 
 async function fetchVoices(provider) {
   if (provider.toLowerCase() === "elevenlabs") {
@@ -45,6 +47,8 @@ async function synthesizeSpeech(
       return elevenLabsSpeech(text, options);
     } else if (provider.toLowerCase() === "polly") {
       return pollySpeech(text, options);
+    } else if (provider.toLowerCase() === "deepgram") {
+      return deepgramSpeech(text, options);
     }
     return openAISpeech(text, options);
   } catch (error) {
@@ -76,7 +80,7 @@ async function pollySpeech(text, options = {}) {
   try {
     const response = await Polly.synthesizeSpeech({
       OutputFormat: "mp3",
-      Text: text || "Hello, this is a test.",
+      Text: text,
       VoiceId: options.voice || "Joanna",
     }).promise();
     const buffer = Buffer.from(response.AudioStream);
@@ -86,6 +90,46 @@ async function pollySpeech(text, options = {}) {
     throw error;
   }
 }
+
+async function deepgramSpeech(text, options = {}) {
+  try {
+    const response = await deepgram.speak.request(
+      { text },
+      {
+        model: options.voice || "aura-asteria-en",
+        encoding: "linear16",
+        container: "wav",
+      }
+    );
+    const stream = await response.getStream();
+    const buffer = await getAudioBuffer(stream);
+
+    if (buffer) {
+      return buffer.toString("base64");
+    } else {
+      console.error("Error generating audio: No buffer received");
+      throw new Error("No audio buffer received");
+    }
+  } catch (error) {
+    console.error("Deepgram TTS error:", error);
+    throw error;
+  }
+}
+
+const getAudioBuffer = async (response) => {
+  const reader = response.getReader();
+  const chunks = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  const dataArray = chunks.reduce(
+    (acc, chunk) => Uint8Array.from([...acc, ...chunk]),
+    new Uint8Array(0)
+  );
+  return Buffer.from(dataArray.buffer);
+};
 
 async function elevenLabsSpeech(text, options = {}) {
   try {

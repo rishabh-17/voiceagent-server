@@ -116,6 +116,13 @@ const getTTSConfig = async (req, res) => {
         ],
         settings: {},
       },
+      Deepgram: {
+        voices: [
+          { id: "aura-asteria-en", name: "Asteria " },
+          { id: "aura-luna-en", name: "Luna" },
+        ],
+        settings: {},
+      },
     };
 
     res.json(ttsConfig);
