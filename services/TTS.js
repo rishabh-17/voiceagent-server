@@ -78,6 +78,7 @@ async function openAISpeech(text, options = {}) {
 
 async function pollySpeech(text, options = {}) {
   try {
+    console.log("Polly voice:", options.voice);
     const response = await Polly.synthesizeSpeech({
       OutputFormat: "mp3",
       Text: text,

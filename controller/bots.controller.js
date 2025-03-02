@@ -111,8 +111,8 @@ const getTTSConfig = async (req, res) => {
         voices: [
           { id: "Aditi", name: "Aditi (hindi)" },
           // { id: "Kajal", name: "Kajal (hindi)" },
-          { id: "Gregory", name: "Gregory" },
-          { id: "Danielle", name: "Danielle" },
+          { id: "Joanna", name: "Joanna" },
+          { id: "Matthew", name: "Matthew" },
         ],
         settings: {},
       },
