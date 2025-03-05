@@ -17,6 +17,7 @@ const openai = new OpenAI({
 const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
 const defaultProvider = process.env.DEFAULT_TTS_PROVIDER || "openai";
 const deepgram = createClient(process.env.DEEPGRAM_KEY);
+const smallestKey = process.env.SMALLEST_KEY;
 
 async function fetchVoices(provider) {
   if (provider.toLowerCase() === "elevenlabs") {
@@ -49,6 +50,9 @@ async function synthesizeSpeech(
       return pollySpeech(text, options);
     } else if (provider.toLowerCase() === "deepgram") {
       return deepgramSpeech(text, options);
+    } else if (provider.toLowerCase() === "smallest") {
+      console.log("TTS provider:", provider);
+      return smallestSpeech(text, options);
     }
     return openAISpeech(text, options);
   } catch (error) {
@@ -163,4 +167,33 @@ async function elevenLabsSpeech(text, options = {}) {
   }
 }
 
+async function smallestSpeech(text, options = {}) {
+  try {
+    const response = await axios.post(
+      "https://waves-api.smallest.ai/api/v1/lightning/get_speech",
+      {
+        text,
+        voice_id: "raghav",
+        add_wav_header: true,
+        sample_rate: 16000,
+        speed: 1,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${smallestKey}`,
+          "Content-Type": "application/json",
+        },
+        responseType: "arraybuffer",
+      }
+    );
+
+    const buffer = Buffer.from(response.data);
+    console.log("Smallest voice:", response.data);
+
+    return buffer.toString("base64");
+  } catch (error) {
+    console.error("Smallest TTS error:", error);
+    throw error;
+  }
+}
 module.exports = { fetchVoices, synthesizeSpeech };
