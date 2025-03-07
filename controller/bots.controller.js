@@ -84,6 +84,23 @@ const getBotsByUser = async (req, res) => {
 const getTTSConfig = async (req, res) => {
   try {
     const ttsConfig = {
+      Polly: {
+        voices: [
+          { id: "Aditi", name: "Aditi (hindi)" },
+          // { id: "Kajal", name: "Kajal (hindi)" },
+          { id: "Raveena", name: "Raveena (hindi)" },
+          { id: "Joanna", name: "Joanna" },
+          { id: "Matthew", name: "Matthew" },
+
+          { id: "Joey", name: "Joey (English-US)" },
+
+          { id: "Amy", name: "Amy (Female)" },
+          // done
+
+          { id: "Salli", name: "Salli (English-US)" },
+        ],
+        settings: {},
+      },
       openai: {
         voices: [
           { id: "alloy", name: "alloy" },
@@ -95,34 +112,48 @@ const getTTSConfig = async (req, res) => {
         ],
         settings: {},
       },
+      Deepgram: {
+        voices: [
+          { id: "aura-luna-en", name: "Luna" }, // English (US), Female
+          { id: "aura-stella-en", name: "Stella" }, // English (US), Female
+
+          { id: "aura-orion-en", name: "Orion" }, // English (US), Male
+
+          { id: "aura-angus-en", name: "Angus" }, // English (Ireland), Male
+          { id: "aura-orpheus-en", name: "Orpheus" }, // English (US), Male
+          { id: "aura-helios-en", name: "Helios" }, // English (UK), Male
+          { id: "aura-zeus-en", name: "Zeus" }, // English (US), Male
+        ],
+        settings: {},
+      },
+
       elevenlabs: {
         voices: [
           { id: "JBFqnCBsd6RMkjVDRZzb", name: "Rachel" },
           { id: "21m00Tcm4TlvDq8ikWAM", name: "Adam" },
-          // { id: "MF4J4IDTRo0AxOO4dpFR", name: "Devi (hindi)" },
-          // { id: "1qEiC6qsybMkmnNdVMbK", name: "Monica Sogam (hindi)" },
+
+          // NEW ADD ID
+          // {id: "zcAOhNBS3c14rBihAFp1", name: "Giovanni TESTT"},
+          //  { id: "wViXBPUzp2ZZixB1xQuM", name: "Arnold  (English-US)" },
+          //  { id:  "9BWtsMINqrJLrRacOk9x", name: "Aria (English-US)" },
+          //  { id: "5Q0t7uMcjvnagumLfvZi", name: "Paul (Legacy)" },
+          //  { id: "CwhRBWXzGAHq8TQ4Fs17", name: "Roger" },
+          // { id: "IKne3meq5aSn9XLyUdCD", name: "Charlie" },
+          // { id: "SOYHLrjzK2X1ezoPC6cr", name: "Harry " },
         ],
         settings: {
           stability: { type: "range", min: 0, max: 1, default: 0 },
           similarity_boost: { type: "range", min: 0, max: 1, default: 0.5 },
         },
       },
-      Polly: {
-        voices: [
-          { id: "Aditi", name: "Aditi (hindi)" },
-          // { id: "Kajal", name: "Kajal (hindi)" },
-          { id: "Joanna", name: "Joanna" },
-          { id: "Matthew", name: "Matthew" },
-        ],
-        settings: {},
-      },
-      Deepgram: {
-        voices: [
-          { id: "aura-asteria-en", name: "Asteria " },
-          { id: "aura-luna-en", name: "Luna" },
-        ],
-        settings: {},
-      },
+
+      // Deepgram: {
+      //   voices: [
+      //     { id: "aura-asteria-en", name: "Asteria " },
+      //     { id: "aura-luna-en", name: "Luna" },
+      //   ],
+      //   settings: {},
+      // },
       //   Smallest: {
       //     voices: [{ id: "diya", name: "diya" }],
       //     settings: {},
