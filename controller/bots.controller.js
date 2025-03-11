@@ -75,7 +75,7 @@ const deleteBot = async (req, res) => {
 const getBotsByUser = async (req, res) => {
   try {
     const bots = await Bots.find({ owner: req.user.userId });
-    res.json(bots);
+    res.json(bots.reverse());
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
