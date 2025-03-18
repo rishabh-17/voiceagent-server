@@ -158,6 +158,10 @@ const getTTSConfig = async (req, res) => {
         voices: [{ id: "diya", name: "diya" }],
         settings: {},
       },
+      Azure: {
+        voices: [{ id: "diya", name: "diya" }],
+        settings: {},
+      },
     };
 
     res.json(ttsConfig);

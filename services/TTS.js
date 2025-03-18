@@ -1,6 +1,8 @@
 const axios = require("axios");
 const OpenAI = require("openai");
 const AWS = require("aws-sdk");
+const sdk = require("microsoft-cognitiveservices-speech-sdk");
+
 const { createClient } = require("@deepgram/sdk");
 
 AWS.config.update({
@@ -18,6 +20,10 @@ const elevenLabsApiKey = process.env.ELEVENLABS_API_KEY;
 const defaultProvider = process.env.DEFAULT_TTS_PROVIDER || "openai";
 const deepgram = createClient(process.env.DEEPGRAM_KEY);
 const smallestKey = process.env.SMALLEST_KEY;
+const speechConfig = sdk.SpeechConfig.fromSubscription(
+  "JxhLZfSVECMzR5MmhqlIcajvAvO0rGl1QPdbUwd8PgZj7GJkIO68JQQJ99BCACHYHv6XJ3w3AAAAACOGKIhI",
+  "eastus2"
+);
 
 async function fetchVoices(provider) {
   if (provider.toLowerCase() === "elevenlabs") {
@@ -53,6 +59,8 @@ async function synthesizeSpeech(
     } else if (provider.toLowerCase() === "smallest") {
       console.log("TTS provider:", provider);
       return smallestSpeech(text, options);
+    } else if (provider.toLowerCase() === "azure") {
+      return azureSpeech(text, options);
     }
     return openAISpeech(text, options);
   } catch (error) {
@@ -173,10 +181,10 @@ async function smallestSpeech(text, options = {}) {
       "https://waves-api.smallest.ai/api/v1/lightning/get_speech",
       {
         text,
-        voice_id: "raghav",
+        voice_id: options.voice || "raghav",
         add_wav_header: true,
         sample_rate: 16000,
-        speed: 1,
+        speed: 1.5,
       },
       {
         headers: {
@@ -196,4 +204,39 @@ async function smallestSpeech(text, options = {}) {
     throw error;
   }
 }
+
+async function azureSpeech(text, options = {}) {
+  return new Promise((resolve, reject) => {
+    try {
+      const audioStream = sdk.AudioOutputStream.createPullStream();
+      const audioConfig = sdk.AudioConfig.fromStreamOutput(audioStream);
+      const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+      synthesizer.speakTextAsync(
+        text,
+        (result) => {
+          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+            // Convert audio data to base64
+            const buffer = Buffer.from(result.audioData);
+            resolve(buffer.toString("base64"));
+          } else {
+            console.error("Azure TTS error:", result.errorDetails);
+            reject(new Error(result.errorDetails));
+          }
+          console.log("Azure TTS result");
+          synthesizer.close();
+        },
+        (error) => {
+          console.error("Azure TTS error:", error);
+          synthesizer.close();
+          reject(error);
+        }
+      );
+    } catch (error) {
+      console.error("Azure Speech Synthesis error:", error);
+      reject(error);
+    }
+  });
+}
+
 module.exports = { fetchVoices, synthesizeSpeech };

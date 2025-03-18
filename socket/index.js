@@ -1,6 +1,7 @@
 const Bots = require("../models/Bots.model");
 const botController = require("../controller/bots.controller");
 const TTS = require("../services/TTS");
+const axios = require("axios");
 
 const socketRunner = (io, openai) => {
   io.on("connection", (socket) => {
@@ -47,10 +48,10 @@ const socketRunner = (io, openai) => {
               const response = await openai.chat.completions.create({
                 model: "gpt-4o-mini",
                 messages: chatHistory,
-                temperature: 0.7,
+                temperature: 0.1,
                 stream: true,
               });
-
+              console.log(response);
               let botMessage = "";
               let temp = "";
               const sentenceEndings = /[.!?,:;]/;
@@ -59,6 +60,7 @@ const socketRunner = (io, openai) => {
                   botMessage += chunk.choices[0].delta.content;
                   temp += chunk.choices[0].delta.content;
                   if (sentenceEndings.test(temp)) {
+                    console.log("temp", temp);
                     const audio = await TTS.synthesizeSpeech(
                       temp,
                       bot.ttsProvider,
@@ -85,6 +87,7 @@ const socketRunner = (io, openai) => {
 
               chatHistory.push({ role: "assistant", content: botMessage });
             } catch (error) {
+              console.error("Error processing AI response:", error);
               socket.emit(
                 "botMessage",
                 "Sorry, there was an error processing your message."
