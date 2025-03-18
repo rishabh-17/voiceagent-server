@@ -154,10 +154,10 @@ const getTTSConfig = async (req, res) => {
       //   ],
       //   settings: {},
       // },
-      //   Smallest: {
-      //     voices: [{ id: "diya", name: "diya" }],
-      //     settings: {},
-      //   },
+      Smallest: {
+        voices: [{ id: "diya", name: "diya" }],
+        settings: {},
+      },
     };
 
     res.json(ttsConfig);
