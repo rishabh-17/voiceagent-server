@@ -144,7 +144,7 @@ async function elevenLabsSpeech(text, options = {}) {
       }`,
       {
         text,
-        model_id: options.modelId || "eleven_multilingual_v2",
+        model_id: options.modelId || "eleven_flash_v2_5",
         voice_settings: {
           stability: options.stability || 0,
           similarity_boost: options.similarityBoost || 0,
