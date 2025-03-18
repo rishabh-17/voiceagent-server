@@ -133,8 +133,8 @@ const getTTSConfig = async (req, res) => {
           { id: "21m00Tcm4TlvDq8ikWAM", name: "Adam" },
 
           // NEW ADD ID
-          // {id: "zcAOhNBS3c14rBihAFp1", name: "Giovanni TESTT"},
-          //  { id: "wViXBPUzp2ZZixB1xQuM", name: "Arnold  (English-US)" },
+          { id: "cgSgspJ2msm6clMCkdW9", name: "Jessica" },
+          { id: "pFZP5JQG7iQjIQuC4Bku", name: "Lily" },
           //  { id:  "9BWtsMINqrJLrRacOk9x", name: "Aria (English-US)" },
           //  { id: "5Q0t7uMcjvnagumLfvZi", name: "Paul (Legacy)" },
           //  { id: "CwhRBWXzGAHq8TQ4Fs17", name: "Roger" },
